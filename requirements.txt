@@ -1,0 +1,11 @@
+crewai 
+langchain
+openai
+arxiv
+faiss-cpu
+fpdf
+python-dotenv
+groq
+langchain-groq
+langchain_google_genai
+crewai-tools
