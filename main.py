@@ -3,7 +3,7 @@ load_dotenv()
 
 from crewai import Crew, Task
 
-from tools.arxiv_rag import fetch_arxiv_papers, build_vectorstore, build_rag_chain
+from tools.arxiv_rag import fetch_arxiv_papers, build_vectorstore, build_rag_chain,llm
 from agents.planner import planner_agent
 from agents.researcher import researcher_agent
 from agents.writer import writer_agent
@@ -17,9 +17,9 @@ def main():
     rag_chain = build_rag_chain(vectorstore)
 
     # Initialize agents
-    planner = planner_agent()
-    researcher = researcher_agent(rag_chain)
-    writer = writer_agent()
+    planner = planner_agent(llm)
+    researcher = researcher_agent(rag_chain,llm)
+    writer = writer_agent(llm)
 
     # Define tasks
     task_plan = Task(

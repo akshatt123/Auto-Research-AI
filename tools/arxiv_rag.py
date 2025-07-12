@@ -2,24 +2,39 @@ import arxiv
 from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.schema import Document
-from langchain_groq import ChatGroq
 from langchain.chains.retrieval_qa.base import RetrievalQA
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.chains.retrieval import create_retrieval_chain
+from crewai import LLM
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
 ## load the Groq API key
-groq_api_key=os.environ['GROQ_API_KEY']
 os.environ["GOOGLE_API_KEY"]=os.getenv("GOOGLE_API_KEY")
-llm=ChatGroq(groq_api_key=groq_api_key,
-             model_name="Llama3-8b-8192")
+
+
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",
+    temperature=0.5,
+    google_api_key=os.getenv("GOOGLE_API_KEY")
+)
+
+
+# llm=LLM(model="gemini/gemini-2.0-flash",
+#                            temperature=0.5,
+#                            api_key=os.getenv("GOOGLE_API_KEY"),
+#                            stream=True)
+
 
 def fetch_arxiv_papers(topic, max_results=5):
-    search = arxiv.Search(query=topic, max_results=max_results)
     papers = []
-    for result in search.results():
+    client = arxiv.Client()
+    search = arxiv.Search(query=topic, max_results=max_results)
+    results = client.results(search)
+    for result in results:
         papers.append({
             "title": result.title,
             "summary": result.summary,
@@ -37,5 +52,5 @@ def build_vectorstore(papers):
 
 def build_rag_chain(vectorstore):
     retriever = vectorstore.as_retriever()
-    qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=retriever)
-    return qa_chain
+    retrivalQA = RetrievalQA.from_llm(llm=llm, retriever=retriever)
+    return retrivalQA

@@ -8,4 +8,4 @@ python-dotenv
 groq
 langchain-groq
 langchain_google_genai
-crewai-tools
+crewai_tools
