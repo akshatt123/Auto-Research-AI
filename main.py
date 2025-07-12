@@ -44,7 +44,8 @@ def main():
     crew = Crew(
         agents=[planner, researcher, writer],
         tasks=[task_plan, task_research, task_write],
-        verbose=True
+        verbose=True,
+        llm=llm
     )
 
     crew.kickoff()
