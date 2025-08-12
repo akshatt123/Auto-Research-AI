@@ -3,7 +3,12 @@ load_dotenv()
 
 from crewai import Crew, Task
 
-from tools.arxiv_rag import fetch_arxiv_papers, build_vectorstore, build_rag_chain,llm
+from tools.arxiv_rag import (
+    fetch_arxiv_papers,
+    build_vectorstore,
+    build_rag_chain,
+    agent_llm,
+)
 from agents.planner import planner_agent
 from agents.researcher import researcher_agent
 from agents.writer import writer_agent
@@ -17,9 +22,9 @@ def main():
     rag_chain = build_rag_chain(vectorstore)
 
     # Initialize agents
-    planner = planner_agent(llm)
-    researcher = researcher_agent(rag_chain,llm)
-    writer = writer_agent(llm)
+    planner = planner_agent(agent_llm)
+    researcher = researcher_agent(rag_chain, agent_llm)    
+    writer = writer_agent(agent_llm)
 
     # Define tasks
     task_plan = Task(
@@ -45,10 +50,20 @@ def main():
         agents=[planner, researcher, writer],
         tasks=[task_plan, task_research, task_write],
         verbose=True,
-        llm=llm
+        llm=agent_llm
     )
 
-    crew.kickoff()
+    result = crew.kickoff()
+    # Normalize to string for CLI use
+    try:
+        text = (
+            result.final_output
+            if hasattr(result, "final_output") and isinstance(result.final_output, str)
+            else str(result)
+        )
+    except Exception:
+        text = str(result)
+    print(text)
 
 if __name__ == "__main__":
     main()

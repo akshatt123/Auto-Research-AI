@@ -9,3 +9,5 @@ groq
 langchain-groq
 langchain_google_genai
 crewai_tools
+streamlit
+PyMuPDF
